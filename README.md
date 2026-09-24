@@ -19,4 +19,6 @@ python3 -m http.server 8000
 
 ## Публикация
 
-Settings → Pages → Deploy from a branch → выбрать ветку и папку `/ (root)`.
+Сайт: **https://accauntov5-ai.github.io/**
+
+Settings → Pages → Build and deployment → Source: *Deploy from a branch* → ветка с сайтом, папка `/ (root)`.
