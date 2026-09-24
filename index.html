@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Капля — путешествие через масштабы</title>
+  <meta name="description" content="Кинематографичный 3D-зум от капли росы до планеты: 10 порядков масштаба за один скролл.">
+  <meta name="theme-color" content="#05070a">
+  <meta property="og:title" content="Капля — путешествие через масштабы">
+  <meta property="og:description" content="От капли росы до планеты за один скролл.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3C16 3 7 14 7 20a9 9 0 0 0 18 0C25 14 16 3 16 3z' fill='%239fd4ff'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three.min.js", "lenis": "./vendor/lenis.mjs" } }
+  </script>
+</head>
+<body>
+  <canvas id="gl" aria-hidden="true"></canvas>
+
+  <!-- Preloader: a ring that fills, then spreads like a ripple on water -->
+  <div class="preloader" id="preloader" role="status" aria-live="polite">
+    <svg class="pre-ring" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="46" class="pre-track"/>
+      <circle cx="50" cy="50" r="46" class="pre-fill" id="preFill"/>
+    </svg>
+    <div class="pre-ripples" aria-hidden="true"><i></i><i></i><i></i></div>
+    <p class="pre-label"><span id="preNum">0</span>%</p>
+  </div>
+
+  <div class="letterbox top" aria-hidden="true"></div>
+  <div class="letterbox bottom" aria-hidden="true"></div>
+
+  <header class="bar bar-top">
+    <a class="logo" href="#" data-goto="0">Капля</a>
+    <button class="sound" id="sound" type="button" aria-pressed="false" aria-label="Включить звук">
+      <span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="sound-label">звук</span>
+    </button>
+  </header>
+
+  <footer class="bar bar-bottom">
+    <div class="scale" aria-label="Масштаб">
+      <div class="scale-read">
+        <span class="scale-value" id="scaleValue">1,0 мм</span>
+        <span class="scale-exp" id="scaleExp">10⁻³ м</span>
+      </div>
+      <div class="ruler" aria-hidden="true">
+        <div class="ruler-ticks" id="rulerTicks"></div>
+        <div class="ruler-cursor" id="rulerCursor"></div>
+      </div>
+    </div>
+    <div class="chapter-name" id="chapterName"><span class="num">I</span><span class="sep">·</span><span class="name">Капля</span></div>
+  </footer>
+
+  <nav class="dots" id="dots" aria-label="Сцены">
+    <button type="button" data-goto="0" aria-label="I. Капля"><span>Капля</span></button>
+    <button type="button" data-goto="1" aria-label="II. Травинка"><span>Травинка</span></button>
+    <button type="button" data-goto="2" aria-label="III. Луг"><span>Луг</span></button>
+    <button type="button" data-goto="3" aria-label="IV. Лес и река"><span>Лес и река</span></button>
+    <button type="button" data-goto="4" aria-label="V. Горы"><span>Горы</span></button>
+    <button type="button" data-goto="5" aria-label="VI. Планета"><span>Планета</span></button>
+  </nav>
+
+  <!-- Captions, faded in and out by scroll progress -->
+  <div class="captions">
+    <section class="cap cap-hero" data-cap="hero">
+      <p class="eyebrow">Путешествие через 10 порядков масштаба</p>
+      <h1 class="hero-title" aria-label="Капля"><span>К</span><span>а</span><span>п</span><span>л</span><span>я</span></h1>
+      <p class="hint">Листай, чтобы отдалиться <span class="arrow" aria-hidden="true">↓</span></p>
+    </section>
+
+    <section class="cap cap-left" data-cap="0">
+      <p class="eyebrow">I · 1 мм</p>
+      <h2>Капля росы</h2>
+      <p>Крошечная линза: внутри неё перевёрнут весь рассвет.</p>
+    </section>
+
+    <section class="cap cap-right" data-cap="1">
+      <p class="eyebrow">II · 10 см</p>
+      <h2>Травинка</h2>
+      <p>В капле росы диаметром 2&nbsp;мм — около 10²⁰ молекул воды.</p>
+    </section>
+
+    <section class="cap cap-left" data-cap="2">
+      <p class="eyebrow">III · 10 м</p>
+      <h2>Луг</h2>
+      <p>Один луг — дом для сотен видов растений и&nbsp;насекомых.</p>
+      <p class="tip">Проведи курсором — поднимется ветер. Нажми — порыв.</p>
+    </section>
+
+    <section class="cap cap-right" data-cap="3">
+      <p class="eyebrow">IV · 1 км</p>
+      <h2>Лес и река</h2>
+      <p>Реки — кровеносная система планеты: они несут воду и&nbsp;жизнь на тысячи километров.</p>
+    </section>
+
+    <section class="cap cap-left" data-cap="4">
+      <p class="eyebrow">V · 100 км</p>
+      <h2>Горы</h2>
+      <p>Гималаи всё ещё растут — на несколько миллиметров в&nbsp;год.</p>
+    </section>
+
+    <section class="cap cap-left" data-cap="5">
+      <p class="eyebrow">VI · 12 742 км</p>
+      <h2>Голубая капля</h2>
+      <p>71% поверхности Земли покрыто водой.</p>
+    </section>
+
+    <section class="cap cap-final" data-cap="final">
+      <p class="eyebrow">Конец</p>
+      <h2>Всё начинается<br>с&nbsp;капли.</h2>
+      <button type="button" class="rewind" id="rewind">Вернуться к капле <span aria-hidden="true">↺</span></button>
+    </section>
+  </div>
+
+  <div class="fallback" id="fallback" hidden>
+    <h2>Капля</h2>
+    <p>Для этого сайта нужен браузер с поддержкой WebGL&nbsp;2.</p>
+  </div>
+
+  <!-- Scroll track: the page scrolls, the camera flies -->
+  <div class="track" id="track" aria-hidden="true"></div>
+
+  <noscript><div class="fallback"><h2>Капля</h2><p>Включите JavaScript, чтобы отправиться в путешествие.</p></div></noscript>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
